@@ -1,0 +1,14 @@
+[package]
+name = "tetros"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+rlibc = "1.0.0"
+uefi = {version = "0.13.0", features = ["exts","alloc","logger"]}
+uefi-services = { path = "../uefi-rs/uefi-services" } # temporary because lib is currently broken
+log = { version = "0.4.14", default-features = false }
+uefi-things = {path="../uefi-wrappers"}
