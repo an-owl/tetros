@@ -135,15 +135,8 @@ impl BlockColour{
         let ppm_file = match uefi_things::fs::get_file_from_path(fs,&f_name,FileMode::Read,FileAttribute::empty()){
             GetFileStatus::Found(f) => f.into_type().unwrap().unwrap(),
             GetFileStatus::NotFound(_) => {
-                let mut data = Vec::new();
-                data.resize(BLOCK_SIZE*BLOCK_SIZE,BltPixel::new(0,0,0));
 
                 let mut s = Sprite::new(BLOCK_SIZE,BLOCK_SIZE);
-                if s.len() == data.len(){
-                    s.copy_from_slice(&data)
-                }
-
-
                 return Ok(uefi::Completion::new(Status::SUCCESS,
                 Block{
                     colour: self,
