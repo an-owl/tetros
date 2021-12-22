@@ -45,7 +45,7 @@ impl Board{
             (width,height)
         };
         let width = Board::GAME_WIDTH;
-        let height = Board::GAME_WIDTH;
+        let height = Board::GAME_HEIGHT;
 
         let mut contents = Vec::new();
         contents.resize(width*height,BlockColour::None);
@@ -68,7 +68,7 @@ impl Board{
 
         }
 
-        let sprite = Sprite::new((width*BLOCK_SIZE),(height*BLOCK_SIZE));
+        let sprite = Sprite::new(width*BLOCK_SIZE,height*BLOCK_SIZE);
 
 
 
@@ -111,7 +111,6 @@ impl BlockColour{
     const BLOCK_PATH: &'static str = "/tetros/blocks/";
     fn get_as_sprite(self,fs: &mut uefi::proto::media::fs::SimpleFileSystem) -> uefi::Result<Block>{
         use uefi::proto::media::file::{FileMode, FileAttribute};
-        use uefi::proto::console::gop::BltPixel;
         use uefi::proto::media::file::FileType;
         // if none create blank sprite
         /*if let None = self{
@@ -136,7 +135,7 @@ impl BlockColour{
             GetFileStatus::Found(f) => f.into_type().unwrap().unwrap(),
             GetFileStatus::NotFound(_) => {
 
-                let mut s = Sprite::new(BLOCK_SIZE,BLOCK_SIZE);
+                let s = Sprite::new(BLOCK_SIZE,BLOCK_SIZE);
                 return Ok(uefi::Completion::new(Status::SUCCESS,
                 Block{
                     colour: self,
@@ -155,7 +154,9 @@ impl BlockColour{
             }
         };
         let mut sprite = Sprite::new(BLOCK_SIZE,BLOCK_SIZE);
-        sprite.read_ppm(&raw_ppm);
+        if let Err(_) = sprite.read_ppm(&raw_ppm){
+            return Err(Status::LOAD_ERROR.into());
+        };
 
         let block = Block{
             colour: self,
@@ -166,14 +167,14 @@ impl BlockColour{
     }
 }
 
-pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> Status{
+pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<()>{
     // Get required protocols
     use uefi_things::proto::get_proto;
     use uefi::proto::console::text::Output;
     use uefi::proto::console::gop::GraphicsOutput;
-    use uefi::proto::media::fs::SimpleFileSystem;
 
-    let mut o = get_proto::<Output>(st.boot_services()).unwrap().unwrap();
+
+    let _o = get_proto::<Output>(st.boot_services()).unwrap().unwrap();
     let g = uefi_things::glib::GraphicsHandle::new(
         uefi_things::proto::get_proto::<GraphicsOutput>(st.boot_services()).unwrap().unwrap(),
     None,
@@ -185,5 +186,6 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> Status{
     let board = Board::new(st,&g);
 
 
-    uefi::Status::SUCCESS
+
+    Ok(uefi::Status::SUCCESS.into())
 }
