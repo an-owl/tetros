@@ -22,8 +22,10 @@ struct Board{
     //size in blocks
     width: usize,
     height: usize,
+
     contents: Vec<BlockColour>, //contains block colours within game grid
     blocks: Vec<Block>, //contains block data
+    sprite: Sprite,
 }
 
 impl Board{
@@ -66,12 +68,17 @@ impl Board{
 
         }
 
+        let sprite = Sprite::new((width*BLOCK_SIZE),(height*BLOCK_SIZE));
+
+
+
         return Self{
             location,
             width,
             height,
             contents,
-            blocks
+            blocks,
+            sprite,
         }
     }
 }
