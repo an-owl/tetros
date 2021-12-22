@@ -142,7 +142,7 @@ impl BlockColour{
                     colour: self,
                     sprite: s
                 }))
-                     },
+            },
                 GetFileStatus::Err(e) => return Err(e.into()),
         };
 
