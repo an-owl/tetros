@@ -11,10 +11,12 @@ extern crate uefi;
 
 
 use uefi::prelude::*;
+use tetros::*;
 
 #[entry]
 fn main(_image: Handle, mut st: SystemTable<Boot>) -> Status {
     uefi_services::init(&mut st).unwrap().unwrap(); //ur fucked if this fails anyway
+    run(&st);
 
 
 
