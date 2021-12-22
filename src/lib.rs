@@ -42,8 +42,8 @@ impl Board{
 
             (width,height)
         };
-        let width = Board::GAME_WIDTH * BOARD_WIDTH;
-        let height = Board::GAME_WIDTH * BOARD_WIDTH;
+        let width = Board::GAME_WIDTH;
+        let height = Board::GAME_WIDTH;
 
         let mut contents = Vec::new();
         contents.resize(width*height,BlockColour::None);
