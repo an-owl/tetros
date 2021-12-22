@@ -180,14 +180,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> Status{
     );
 
     //check resolution
-    {
-        let (width,height) = g.get_resolution();
-        if (width < BOARD_WIDTH) || (height < BOARD_HEIGHT){
-            writeln!(o,"unsupported resolution requites at least {}x{}", BOARD_WIDTH,BOARD_HEIGHT).unwrap();
-            return Status::UNSUPPORTED
-        }
 
-    }
 
     let board = Board::new(st,&g);
 
