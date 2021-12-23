@@ -81,6 +81,54 @@ impl Board{
             sprite,
         }
     }
+
+    fn get_block(&self, colour: BlockColour) -> Option<&Block>{
+        for block in &self.blocks{
+            if block.colour == colour{
+                return Some(block)
+            }
+        }
+        None
+    }
+    fn render_bg(&self, sprite: &mut Sprite) {
+        let block = self.get_block(BlockColour::Grey).expect("unable to find grey block");
+        let (mut start_x,mut start_y) = self.location;
+        //one block top right of board
+        start_x -= BLOCK_SIZE;
+        start_y -= BLOCK_SIZE;
+
+        let mut count = 0;
+        for row in 0..self.height + 2{
+            let y = start_y + (BLOCK_SIZE * row);
+            for col in 0..self.width + 2{
+                count += 1;
+
+                let x = start_x + (BLOCK_SIZE * col);
+                sprite.render_sprite(block,(x,y))
+
+            }
+        }
+        info!("blocks drawn: {}",count);
+    }
+    pub fn draw(&self,g: GraphicsHandle,) -> uefi::Result{
+        use uefi::proto::console::gop;
+        g.gop.blt(gop::BltOp::BufferToVideo {
+            buffer: &self.sprite,
+            src: gop::BltRegion::Full,
+            dest: self.location,
+            dims: self.resolution()
+        })
+    }
+
+
+}
+
+impl core::ops::Deref for Board {
+    type Target = Sprite;
+
+    fn deref(&self) -> &Self::Target {
+        &self.sprite
+    }
 }
 
 struct Block{
