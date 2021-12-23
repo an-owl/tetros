@@ -1,7 +1,7 @@
 #![no_std]
 pub const BLOCK_SIZE: usize = 30; //block should always be square
-pub const BOARD_WIDTH: usize = BLOCK_SIZE * 12;
-pub const BOARD_HEIGHT: usize = BLOCK_SIZE * 20;
+pub const BOARD_WIDTH: usize = BLOCK_SIZE * Board::GAME_WIDTH;
+pub const BOARD_HEIGHT: usize = BLOCK_SIZE * Board::GAME_HEIGHT;
 
 extern crate rlibc;
 extern crate alloc;
