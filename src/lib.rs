@@ -110,7 +110,7 @@ impl Board{
         }
         info!("blocks drawn: {}",count);
     }
-    pub fn draw(&self,g: GraphicsHandle,) -> uefi::Result{
+    pub fn draw(&self,g: &mut GraphicsHandle,) -> uefi::Result{
         use uefi::proto::console::gop;
         g.gop.blt(gop::BltOp::BufferToVideo {
             buffer: &self.sprite,
@@ -124,12 +124,19 @@ impl Board{
         let (x,y) = location;
         let address = (y * self.width) + x;
         let colour = self.contents[address];
-        let block = self.get_block(colour).unwrap();
+        let block = self.get_block(colour).unwrap().clone();
 
-        self.sprite.render_sprite(block,(x*BLOCK_SIZE,y*BLOCK_SIZE));
+        self.sprite.render_sprite(&block,(x*BLOCK_SIZE,y*BLOCK_SIZE));
 
     }
 
+    fn set_and_update(&mut self,location: (usize,usize),colour: BlockColour){
+        let (x,y) = location;
+        let address = (y * self.width) + x;
+
+        self.contents[address] = colour;
+        self.update_block(location);
+    }
 
 }
 
@@ -141,6 +148,7 @@ impl core::ops::Deref for Board {
     }
 }
 
+#[derive(Clone)]
 struct Block{
     pub colour: BlockColour,
     pub sprite: Sprite,
