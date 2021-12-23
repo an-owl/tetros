@@ -120,6 +120,16 @@ impl Board{
         })
     }
 
+    fn update_block(&mut self,location: (usize,usize)){
+        let (x,y) = location;
+        let address = (y * self.width) + x;
+        let colour = self.contents[address];
+        let block = self.get_block(colour).unwrap();
+
+        self.sprite.render_sprite(block,(x*BLOCK_SIZE,y*BLOCK_SIZE));
+
+    }
+
 
 }
 
