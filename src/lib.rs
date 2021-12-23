@@ -9,7 +9,7 @@ extern crate log;
 extern crate uefi;
 
 use uefi::Status;
-use uefi_things::glib::Sprite;
+use uefi_things::glib::{Sprite, GraphicsHandle};
 use  core::fmt::Debug;
 use uefi_things::fs::GetFileStatus;
 use alloc::fmt::Write;
@@ -221,17 +221,41 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     use uefi::proto::console::text::Output;
     use uefi::proto::console::gop::GraphicsOutput;
 
-
+    // initialize protocols
     let _o = get_proto::<Output>(st.boot_services()).unwrap().unwrap();
-    let g = uefi_things::glib::GraphicsHandle::new(
+    let mut g = uefi_things::glib::GraphicsHandle::new(
         uefi_things::proto::get_proto::<GraphicsOutput>(st.boot_services()).unwrap().unwrap(),
     None,
     );
-
-    //check resolution
-
-
+    //create game board
     let board = Board::new(st,&g);
+    g.new_buff();
+
+
+    //create game boarder
+    /*
+    let block = board.get_block(BlockColour::Grey).unwrap();
+    let (mut x,mut y) = board.location;
+    x -= BLOCK_SIZE;
+    y -= BLOCK_SIZE;
+
+    g.draw_to_buff(block,0,(0,0));
+
+    info!("{},{}",g.get_resolution().0,g.get_resolution().1);
+    info!("{},{}",g.get_buff(0).unwrap().resolution().0,g.get_buff(0).unwrap().resolution().1);
+    info!("{},{}",block.resolution().0,block.resolution().1);
+     */
+
+    board.render_bg(g.mut_get_buff(0).unwrap());
+
+    g.draw(0).unwrap().unwrap(); //should be only call to g.draw during Gameplay
+    board.draw(g).unwrap().unwrap(); //do not draw board to stored buffers it will waste time //TODO handle this
+
+
+
+
+
+
 
 
 
