@@ -136,7 +136,15 @@ struct Block{
     pub sprite: Sprite,
 }
 
-#[derive(Debug,Clone,Copy)]
+impl core::ops::Deref for Block{
+    type Target = Sprite;
+
+    fn deref(&self) -> &Self::Target {
+        &self.sprite
+    }
+}
+
+#[derive(Debug,Clone,Copy,PartialEq)]
 enum BlockColour{
     Red,
     Blue,
