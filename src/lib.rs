@@ -254,7 +254,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     None,
     );
     //create game board
-    let board = Board::new(st,&g);
+    let mut board = Board::new(st, &g);
     g.new_buff();
 
 
@@ -275,10 +275,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     board.render_bg(g.mut_get_buff(0).unwrap());
 
     g.draw(0).unwrap().unwrap(); //should be only call to g.draw during Gameplay
-    board.draw(g).unwrap().unwrap(); //do not draw board to stored buffers it will waste time //TODO handle this
-
-
-
+    board.draw(&mut g).unwrap().unwrap(); //do not draw board to stored buffers it will waste time //TODO handle this
 
 
 
