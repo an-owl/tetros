@@ -397,21 +397,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     //create game board
     let mut board = Board::new(st, &g);
     g.new_buff();
-
-
     //create game boarder
-    /*
-    let block = board.get_block(BlockColour::Grey).unwrap();
-    let (mut x,mut y) = board.location;
-    x -= BLOCK_SIZE;
-    y -= BLOCK_SIZE;
-
-    g.draw_to_buff(block,0,(0,0));
-
-    info!("{},{}",g.get_resolution().0,g.get_resolution().1);
-    info!("{},{}",g.get_buff(0).unwrap().resolution().0,g.get_buff(0).unwrap().resolution().1);
-    info!("{},{}",block.resolution().0,block.resolution().1);
-     */
 
     board.render_bg(g.mut_get_buff(0).unwrap());
 
