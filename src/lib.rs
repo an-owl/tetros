@@ -131,11 +131,18 @@ impl Board{
     }
 
     fn set_and_update(&mut self,location: (usize,usize),colour: BlockColour){
-        let (x,y) = location;
+        self.set(location,colour);
+        self.update_block(location);
+    }
+
+    fn set(&mut self, at:(usize, usize), colour: BlockColour){
+        //if out of bounds
+        if (at.0 > self.width) || (at.1 > self.height){ return }
+
+        let (x,y) = at;
         let address = (y * self.width) + x;
 
         self.contents[address] = colour;
-        self.update_block(location);
     }
 
 }
@@ -240,6 +247,139 @@ impl BlockColour{
         return Ok(uefi::Completion::new(Status::SUCCESS, block));
     }
 }
+
+struct Tetromino {
+    height: usize,
+    width: usize,
+    location: (usize,usize),
+    colour: BlockColour,
+    contents: Vec<bool>,
+}
+
+impl Tetromino{
+    const SQUARE: u16 = 0b1111;
+    const T_SHAPE: u16 = 0b010111;
+    const L_SHAPE: u16 = 0b101011;
+    const L_SHAPE_R: u16 = 0b010111;
+    const I_SHAPE: u16 = 0b1111;
+    const Z_SHAPE: u16 = 0b110011;
+    const Z_SHAPE_R: u16 = 0b011110;
+    /// layout as a binary representation of layout where bit order is layout order
+    /// excess bits will be ignores
+    fn new(size: (usize,usize) ,layout: u16, colour: BlockColour) -> Self{
+
+        let bt = |i: u16, test: u16| -> bool {
+            let mut bit = 1;
+            bit <<= i;
+
+            return if (bit & test) == 0 {
+                false
+            } else {
+                true
+            }
+
+        };
+
+        let (width,height) = size;
+        let mut contents = Vec::new();
+        contents.resize(width*height,false);
+
+        for i in 0..contents.len(){
+            contents[i] = bt(i as u16,layout);
+        }
+        //location out of bounds will just silent error
+        let location = (Board::GAME_WIDTH + 1,Board::GAME_HEIGHT + 1);
+
+        return Self{
+            height,
+            width,
+            location,
+            colour,
+            contents
+        }
+
+    }
+
+    fn locate(&self,index: usize) -> (usize,usize){
+        let y = index / self.width;
+        let x = index % self.width;
+        (x,y)
+    }
+    fn index(&self,coords: (usize,usize)) -> usize{
+        let (x,y) = coords;
+        //info!("({} * {}) + {} = {}",y,self.width,x,(y*self.width ) + x);
+        (y * self.width) + x
+    }
+
+    fn get_scan(&self, y: usize) -> Vec<bool>{
+        let mut scan = Vec::new();
+        scan.resize(self.width,false);
+        for block in 0..self.width{
+            scan[block] = self.contents[self.index((block,y))]
+        }
+        scan
+    }
+
+    fn rotate_right(&mut self){
+        let mut scratch = Tetromino::new((self.height,self.width),0,self.colour);
+
+        for scan in 0..self.height {
+            let scan_dat = self.get_scan(scan);
+            for block in 0..self.width {
+
+                let far = scratch.index(((scratch.width - 1) - scan,block));
+                scratch.contents[far] = scan_dat[block];
+
+            }
+        }
+
+        self.width = scratch.width;
+        self.height = scratch.height;
+        self.contents = scratch.contents;
+    }
+
+
+    fn rotate_left(&mut self){
+        let mut scratch = Tetromino::new((self.height,self.width),0,self.colour);
+
+        for scan in 0..self.height {
+            let scan_dat = self.get_scan(scan);
+            for block in 0..self.width {
+                //info!("from {:?} index {}",() )
+                let far = scratch.index((scan,(scratch.height - 1) - block));
+                scratch.contents[far] = scan_dat[block];
+
+            }
+        }
+
+        self.width = scratch.width;
+        self.height = scratch.height;
+        self.contents = scratch.contents;
+    }
+
+    fn set(&self, board: &mut Board){
+        for i in 0..self.contents.len(){
+            if self.contents[i] == false{
+                continue
+            }
+            let (mut x ,mut y) = self.locate(i);
+            x += self.location.0;
+            y += self.location.1;
+
+            board.set_and_update((x,y),self.colour);
+        }
+    }
+    fn unset(&self, board: &mut Board){
+        for i in 0..self.contents.len(){
+            let (mut x ,mut y) = self.locate(i);
+            x += self.location.0;
+            y += self.location.1;
+
+            board.set_and_update((x,y),BlockColour::None);
+        }
+    }
+}
+
 
 pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<()>{
     // Get required protocols
