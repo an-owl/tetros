@@ -23,8 +23,8 @@ fn main(_image: Handle, mut st: SystemTable<Boot>) -> Status {
         let gop = uefi_things::proto::get_proto::<uefi::proto::console::gop::GraphicsOutput>(st.boot_services()).unwrap().unwrap();
         let (width,height) = gop.current_mode_info().resolution();
 
-        if (width < BOARD_WIDTH) || (height < BOARD_HEIGHT){
-            writeln!(o,"unsupported resolution requites at least {}x{}",  BOARD_WIDTH,BOARD_HEIGHT).unwrap();
+        if (width < graphical::BOARD_WIDTH) || (height < graphical::BOARD_HEIGHT){
+            writeln!(o,"unsupported resolution requites at least {}x{}", graphical:: BOARD_WIDTH,graphical::BOARD_HEIGHT).unwrap();
             return Status::UNSUPPORTED
         }
 
