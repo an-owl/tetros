@@ -379,6 +379,12 @@ impl Tetromino{
             board.set_and_update((x,y),BlockColour::None);
         }
     }
+    fn do_and_update(&mut self,task: fn(&mut Self), board: &mut Board, g: &mut GraphicsHandle){
+        self.unset(board);
+        task(self);
+        self.set(board);
+        board.draw(g).unwrap().unwrap();
+    }
 }
 
 
@@ -409,12 +415,13 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
 
     l_shape.set(&mut board);
     board.draw(&mut g).unwrap().unwrap();
-    for _ in 0..100 {
+    for _ in 0..10 {
         st.boot_services().stall(1000000);
-        l_shape.unset(&mut board);
-        l_shape.rotate_left();
-        l_shape.set(&mut board);
-        board.draw(&mut g);
+        l_shape.do_and_update(Tetromino::rotate_right,&mut board, &mut g);
+    }
+    for _ in 0..10 {
+        st.boot_services().stall(1000000);
+        l_shape.do_and_update(Tetromino::rotate_left,&mut board, &mut g)
     }
 
 
