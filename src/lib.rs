@@ -5,6 +5,7 @@ pub const BOARD_HEIGHT: usize = BLOCK_SIZE * Board::GAME_HEIGHT;
 
 extern crate rlibc;
 extern crate alloc;
+#[macro_use]
 extern crate log;
 extern crate uefi;
 
@@ -417,8 +418,18 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     g.draw(0).unwrap().unwrap(); //should be only call to g.draw during Gameplay
     board.draw(&mut g).unwrap().unwrap(); //do not draw board to stored buffers it will waste time //TODO handle this
 
+    let mut l_shape = Tetromino::new((2,3),Tetromino::L_SHAPE,BlockColour::Blue);
+    l_shape.location = (3,3);
 
-
+    l_shape.set(&mut board);
+    board.draw(&mut g).unwrap().unwrap();
+    for _ in 0..100 {
+        st.boot_services().stall(1000000);
+        l_shape.unset(&mut board);
+        l_shape.rotate_left();
+        l_shape.set(&mut board);
+        board.draw(&mut g);
+    }
 
 
 
