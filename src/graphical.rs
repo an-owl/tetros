@@ -464,7 +464,7 @@ impl Tetromino{
         ret
     }
 
-    pub fn safe_ror(&mut self, mut board: &mut Board) -> bool{
+    pub fn safe_ror(&mut self, board: &mut Board) -> bool{
         self.unset(board);
         self.rotate_right();
         if !self.is_legal(board){
@@ -475,7 +475,7 @@ impl Tetromino{
         self.set(board);
         true
     }
-    pub fn safe_rol(&mut self, mut board: &mut Board) -> bool{
+    pub fn safe_rol(&mut self, board: &mut Board) -> bool{
         self.unset(board);
         self.rotate_left();
         if !self.is_legal(board) {
