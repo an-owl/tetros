@@ -271,12 +271,12 @@ pub struct Tetromino {
 
 impl Tetromino{
     pub const SQUARE: u16 = 0b1111;
-    pub const T_SHAPE: u16 = 0b010111;
-    pub const L_SHAPE: u16 = 0b101011;
-    pub const L_SHAPE_R: u16 = 0b010111;
+    pub const T_SHAPE: u16 = 0b010111000;
+    pub const L_SHAPE: u16 = 0b110010010;
+    pub const L_SHAPE_R: u16 = 0b010010011;
     pub const I_SHAPE: u16 = 0b1111;
-    pub const Z_SHAPE: u16 = 0b110011;
-    pub const Z_SHAPE_R: u16 = 0b011110;
+    pub const Z_SHAPE: u16 = 0b110011000;
+    pub const Z_SHAPE_R: u16 = 0b000011110;
     /// layout as a binary representation of layout where bit order is layout order
     /// excess bits will be ignores
     pub fn new(size: (usize,usize) ,layout: u16, colour: BlockColour) -> Self{
