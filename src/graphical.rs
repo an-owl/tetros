@@ -138,6 +138,24 @@ impl Board{
         let address = (y * self.width) + x;
 
         self.contents[address] = colour;
+
+
+    }
+
+    fn is_free(&self,coords: (usize,usize)) -> bool{
+        let (x,y) = coords;
+        //info!("({} * {}) + {} = {}",y,self.width,x,(y*self.width ) + x);
+        let index = (y * self.width) + x;
+
+        if x > self.width  { return false }
+        if y > self.height { return false }
+
+        return if self.contents[index] == BlockColour::None {
+            true
+        } else {
+            false
+        }
+
     }
 
 }
@@ -379,4 +397,94 @@ impl Tetromino{
         self.set(board);
         board.draw(g).unwrap().unwrap();
     }
+
+    pub fn relocate(&mut self, to: (i8,i8)) -> Result<(),()> {
+        use core::ops::Neg;
+
+        let (x,y) = to;
+        // performs arithmetic on width,height by converting i8 to usize
+        if x < 0{
+            let x = x.neg();
+            if x as usize > self.location.0{
+                return Err(()) }
+            self.location.0 -= x as usize;
+        } else {
+            self.location.0 += x as usize;
+
+        }
+        if y < 0{
+            let y = y.neg();
+            if y as usize > self.location.1{ return Err(()) }
+            self.location.1 -= y as usize;
+        } else {
+            self.location.1 +=  y as usize;
+        }
+        return Ok(())
+    }
+
+    /// check for occupied spaces around tetromino
+    /// returns true if self can stay here
+
+    pub fn is_legal(&self, board: &Board) -> bool{
+        //check boundaries
+        if (self.width  + self.location.0) > board.width { return false }
+        if (self.height + self.location.1) > board.height{ return false }
+
+
+        for i in 0..self.contents.len(){
+            if self.contents[i] == false {continue}
+            //look left
+            let (mut x,mut y) = self.locate(i);
+            x += self.location.0;
+            y += self.location.1;
+
+            if !board.is_free((x,y)){
+                return false
+            }
+
+        }
+        true
+    }
+
+    pub fn legal_move(&mut self, to: (i8,i8),board: &mut Board) -> bool{
+        self.unset(board);
+        if let Err(_) = self.relocate(to) {
+            self.set(board);
+            return false
+        };
+        let mut ret = true;
+        if !self.is_legal(board){
+            let (x,y) = to;
+            self.relocate((-x,-y)).unwrap();
+            ret = false;
+        }
+
+
+        self.set(board);
+        ret
+    }
+
+    pub fn safe_ror(&mut self, mut board: &mut Board) -> bool{
+        self.unset(board);
+        self.rotate_right();
+        if !self.is_legal(board){
+            self.rotate_left();
+            self.set(board);
+            return false
+        }
+        self.set(board);
+        true
+    }
+    pub fn safe_rol(&mut self, mut board: &mut Board) -> bool{
+        self.unset(board);
+        self.rotate_left();
+        if !self.is_legal(board) {
+            self.rotate_right();
+            self.set(board);
+            return false
+        }
+        self.set(board);
+        true
+    }
+
 }
