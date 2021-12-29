@@ -410,12 +410,11 @@ impl Tetromino{
     }
 
     pub fn relocate(&mut self, to: (i8,i8)) -> Result<(),()> {
-        //use core::ops::Neg;
-
         let (x,y) = to;
 
         self.location.0 += x as isize;
         self.location.1 += y as isize;
+
         return Ok(())
     }
 
@@ -430,6 +429,9 @@ impl Tetromino{
             let (x,y) = self.locate(i);
             let mut x = x as isize;
             let mut y = y as isize;
+
+            //info!("x: {} + {}",x,self.location.0);
+            //info!("y: {} + {}",y,self.location.1);
 
             x += self.location.0;
             y += self.location.1;
@@ -447,10 +449,34 @@ impl Tetromino{
         true
     }
 
+    /// checks left and right of current tetromino for legal spaces
+    /// returns `(left,below,right)`
+    /// self must be unset beforehand
+    pub fn check_sides(&self, board: &Board) -> (bool,bool,bool) {
+        let mut test = Tetromino{
+            height: self.height,
+            width: self.height,
+            location: self.location,
+            colour: self.colour,
+            contents: self.contents.clone()
+        };
+
+        test.relocate((-1,0)).unwrap();
+        let left = test.is_legal(board);
+
+        test.relocate((2,0));
+        let right = test.is_legal(board);
+
+        test.relocate((-1,1)).unwrap();
+        let below = test.is_legal(board);
+
+        return (left,below,right)
+
+    }
+
     pub fn legal_move(&mut self, to: (i8,i8),board: &mut Board) -> bool{
         self.unset(board);
         if let Err(_) = self.relocate(to) {
-            info!("failed to relocate");
             self.set(board);
             return false
         };
@@ -470,9 +496,14 @@ impl Tetromino{
         self.unset(board);
         self.rotate_right();
         if !self.is_legal(board){
-            self.rotate_left();
-            self.set(board);
-            return false
+            let (left,_,right) = self.check_sides(board);
+            if left { self.relocate((-1,0)).unwrap();
+            } else if right { self.relocate((1,0)).unwrap();
+            } else {
+                self.rotate_left();
+                self.set(board);
+                return false
+            }
         }
         self.set(board);
         true
@@ -481,9 +512,14 @@ impl Tetromino{
         self.unset(board);
         self.rotate_left();
         if !self.is_legal(board) {
-            self.rotate_right();
-            self.set(board);
-            return false
+            let (left,_,right) = self.check_sides(board);
+            if left { self.relocate((-1,0)).unwrap();
+            } else if right { self.relocate((1,0)).unwrap();
+            } else {
+                self.rotate_left();
+                self.set(board);
+                return false
+            }
         }
         self.set(board);
         true
