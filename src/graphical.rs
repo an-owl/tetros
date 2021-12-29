@@ -264,7 +264,7 @@ impl BlockColour{
 pub struct Tetromino {
     height: usize,
     width: usize,
-    pub location: (usize,usize),
+    pub location: (isize,isize),
     pub colour: BlockColour,
     contents: Vec<bool>,
 }
@@ -301,8 +301,7 @@ impl Tetromino{
             contents[i] = bt(i as u16,layout);
         }
         //location out of bounds will just silent error
-        let location = (Board::GAME_WIDTH + 1,Board::GAME_HEIGHT + 1);
-
+        let location = (0,0);
         return Self{
             height,
             width,
@@ -375,20 +374,32 @@ impl Tetromino{
             if self.contents[i] == false{
                 continue
             }
-            let (mut x ,mut y) = self.locate(i);
+            let (x ,y) = self.locate(i);
+            let mut x = x as isize;
+            let mut y = y as isize;
+
             x += self.location.0;
             y += self.location.1;
 
-            board.set_and_update((x,y),self.colour);
+            if x.is_negative() || y.is_negative() { continue }
+
+            board.set_and_update((x as usize,y as usize),self.colour);
         }
     }
     pub fn unset(&self, board: &mut Board){
         for i in 0..self.contents.len(){
-            let (mut x ,mut y) = self.locate(i);
+            let (x  ,y) = self.locate(i);
+            let mut x = x as isize;
+            let mut y = y as isize;
+
             x += self.location.0;
             y += self.location.1;
 
-            board.set_and_update((x,y),BlockColour::None);
+            if x.is_negative() || y.is_negative() {
+                continue
+            }
+
+            board.set_and_update((x as usize,y as usize),BlockColour::None);
         }
     }
     pub fn do_and_update(&mut self,task: fn(&mut Self), board: &mut Board, g: &mut GraphicsHandle){
@@ -399,26 +410,12 @@ impl Tetromino{
     }
 
     pub fn relocate(&mut self, to: (i8,i8)) -> Result<(),()> {
-        use core::ops::Neg;
+        //use core::ops::Neg;
 
         let (x,y) = to;
-        // performs arithmetic on width,height by converting i8 to usize
-        if x < 0{
-            let x = x.neg();
-            if x as usize > self.location.0{
-                return Err(()) }
-            self.location.0 -= x as usize;
-        } else {
-            self.location.0 += x as usize;
 
-        }
-        if y < 0{
-            let y = y.neg();
-            if y as usize > self.location.1{ return Err(()) }
-            self.location.1 -= y as usize;
-        } else {
-            self.location.1 +=  y as usize;
-        }
+        self.location.0 += x as isize;
+        self.location.1 += y as isize;
         return Ok(())
     }
 
@@ -427,21 +424,25 @@ impl Tetromino{
 
     pub fn is_legal(&self, board: &Board) -> bool{
         //check boundaries
-        if (self.width  + self.location.0) > board.width { return false }
-        if (self.height + self.location.1) > board.height{ return false }
-
-
         for i in 0..self.contents.len(){
             if self.contents[i] == false {continue}
-            //look left
-            let (mut x,mut y) = self.locate(i);
+
+            let (x,y) = self.locate(i);
+            let mut x = x as isize;
+            let mut y = y as isize;
+
             x += self.location.0;
             y += self.location.1;
 
-            if !board.is_free((x,y)){
+            if x.is_negative() || y.is_negative(){
                 return false
             }
-
+            if (x as usize >= board.width ) || (y as usize >= board.height) {
+                return false
+            }
+            if !board.is_free((x as usize,y as usize)){
+                return false
+            }
         }
         true
     }
@@ -449,6 +450,7 @@ impl Tetromino{
     pub fn legal_move(&mut self, to: (i8,i8),board: &mut Board) -> bool{
         self.unset(board);
         if let Err(_) = self.relocate(to) {
+            info!("failed to relocate");
             self.set(board);
             return false
         };
