@@ -39,40 +39,21 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
 
     let mut l_shape = Tetromino::new((3,3),Tetromino::L_SHAPE,BlockColour::Blue);
     let mut square = Tetromino::new((2,2),Tetromino::SQUARE,BlockColour::Yellow);
+
     l_shape.location = (3,3);
     square.location = (5,3);
     //square.set(&mut board);
 
     l_shape.set(&mut board);
-
     board.draw(&mut g);
-    st.boot_services().stall(1000000);
 
-    for _ in 0..5 {
-        //info!("moved {} to {:?}",l_shape.safe_ror(&mut board),l_shape.location);
-        info!("moved {} to {:?}",l_shape.legal_move((-1,0),&mut board),l_shape.location);
-        board.draw(&mut g);
-        st.boot_services().stall(1000000);
-    }
-    info!("moved {} to {:?}",l_shape.legal_move((2,0),&mut board),l_shape.location);
-    for _ in 0..5 {
-        info!("moved {} to {:?}",l_shape.safe_ror(&mut board),l_shape.location);
-        //info!("moved {} to {:?}",l_shape.legal_move((-1,0),&mut board),l_shape.location);
-        board.draw(&mut g);
-        st.boot_services().stall(1000000);
-    }
-        for _ in 0..4 {
-        info!("moved {} to {:?}",l_shape.safe_rol(&mut board),l_shape.location);
-        //info!("moved {} to {:?}",l_shape.legal_move((-1,0),&mut board),l_shape.location);
-        board.draw(&mut g);
-        st.boot_services().stall(1000000);
-    }
 
-    for _ in 0..10 {
-        //info!("moved {} to {:?}",l_shape.safe_ror(&mut board),l_shape.location);
-        info!("moved {} to {:?}",l_shape.legal_move((1,0),&mut board),l_shape.location);
-        board.draw(&mut g);
-        st.boot_services().stall(1000000);
+    //main game loop
+    loop {
+
+        let game_action= |key| -> bool {do_game_action(&mut l_shape, &mut board, key, &mut g)};
+        if tick(st, 1_000, game_action) { break }
+
     }
     Ok(uefi::Status::SUCCESS.into())
 }
