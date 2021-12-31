@@ -464,7 +464,7 @@ impl Tetromino{
         test.relocate((-1,0)).unwrap();
         let left = test.is_legal(board);
 
-        test.relocate((2,0));
+        test.relocate((2,0)).unwrap();
         let right = test.is_legal(board);
 
         test.relocate((-1,1)).unwrap();
