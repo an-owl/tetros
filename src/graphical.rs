@@ -388,6 +388,7 @@ impl Tetromino{
     }
     pub fn unset(&self, board: &mut Board){
         for i in 0..self.contents.len(){
+            if !self.contents[i] { continue }
             let (x  ,y) = self.locate(i);
             let mut x = x as isize;
             let mut y = y as isize;
