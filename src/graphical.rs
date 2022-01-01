@@ -329,8 +329,8 @@ pub struct Tetromino {
 impl Tetromino{
     pub const SQUARE: u16 = 0b1111;
     pub const T_SHAPE: u16 = 0b010111000;
-    pub const L_SHAPE: u16 = 0b110010010;
-    pub const L_SHAPE_R: u16 = 0b010010011;
+    pub const L_SHAPE: u16 = 0b01001001011;
+    pub const L_SHAPE_R: u16 = 0b010010110;
     pub const I_SHAPE: u16 = 0b1111;
     pub const Z_SHAPE: u16 = 0b110011000;
     pub const Z_SHAPE_R: u16 = 0b000011110;
