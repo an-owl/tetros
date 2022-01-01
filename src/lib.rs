@@ -23,7 +23,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     use graphical::*;
 
 
-    log::set_max_level(log::LevelFilter::Debug);
+    log::set_max_level(log::LevelFilter::Info);
     // initialize protocols
     let _o = get_proto::<Output>(st.boot_services()).unwrap().unwrap();
     let mut g = uefi_things::glib::GraphicsHandle::new(
