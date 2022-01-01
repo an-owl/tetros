@@ -155,9 +155,67 @@ impl Board{
         } else {
             false
         }
-
     }
 
+    fn index(&self,coords:(usize,usize)) -> usize {
+        (coords.1 * self.width) + coords.0
+    }
+
+    /// checks rows top..bottom returns row of first full row
+    fn find_row(&self) -> Option<usize>{
+        //iterates through rows
+        'row: for row in  0..self.height {
+
+            for block in 0..self.width {
+                //checks for BlockColour::None
+                //if found row is not full so it continues to the next row
+                if let BlockColour::None = self.contents[self.index((block,row))] {
+                    continue 'row;
+                }
+            }
+            //this is only reached when the above loop completes
+            //it should only complete if the row is full
+            return Some(row);
+        }
+        None
+    }
+
+    /// clears given row
+    fn clear_row(&mut self, row: usize){
+        for i in 0..self.width{
+            self.set_and_update((i,row),BlockColour::None);
+        }
+    }
+
+    ///scrolls all blocks above `row` down
+    fn scroll_from(&mut self, row: usize){
+        for r in (1..row+1).rev(){
+            for block in 0..self.width{
+                let state = self.contents[self.index((block,r-1))];
+                self.set_and_update((block,r) ,state);
+            }
+        }
+        self.clear_row(0);
+    }
+
+    ///clears full rows and scrolls blocks down
+    /// returns number of rows cleared
+    pub fn clean_screen(&mut self) -> i64{ //return type subject to change
+        let mut cleared = 0;
+
+        loop {
+            match self.find_row(){
+                None => break,
+                Some( row ) => {
+                    cleared += 1;
+                    debug!("Clearing row {}",row);
+                    self.clear_row(row);
+                    self.scroll_from(row);
+                }
+            }
+        }
+        return cleared
+    }
 }
 
 impl core::ops::Deref for Board {
