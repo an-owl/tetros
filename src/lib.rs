@@ -37,22 +37,43 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     g.draw(0).unwrap().unwrap(); //should be only call to g.draw during Gameplay
     board.draw(&mut g).unwrap().unwrap(); //do not draw board to stored buffers it will waste time //TODO handle this
 
+    let mut tetrominos = alloc::vec::Vec::new();
+
+    {
+        let l_shape = Tetromino::new((3,3),Tetromino::L_SHAPE,BlockColour::Blue);
+        let square = Tetromino::new((2,2),Tetromino::SQUARE,BlockColour::Yellow);
+        let j_shape = Tetromino::new((3,3),Tetromino::L_SHAPE_R,BlockColour::Red);
+        let z_shape = Tetromino::new((3,3), Tetromino::Z_SHAPE,BlockColour::Green);
+        let s_shape = Tetromino::new((3,3),Tetromino::Z_SHAPE_R,BlockColour::Orange);
+        let i_shape = Tetromino::new((4,1),Tetromino::I_SHAPE,BlockColour::Cyan);
+        let t_shape = Tetromino::new((3,3),Tetromino::T_SHAPE,BlockColour::Purple);
+
+        tetrominos.push(l_shape);
+        tetrominos.push(square);
+        tetrominos.push(t_shape);
+        tetrominos.push(j_shape);
+        tetrominos.push(z_shape);
+        tetrominos.push(s_shape);
+        tetrominos.push(i_shape);
+
+    }
+
+    /*
     let mut l_shape = Tetromino::new((3,3),Tetromino::L_SHAPE,BlockColour::Blue);
     let mut square = Tetromino::new((2,2),Tetromino::SQUARE,BlockColour::Yellow);
 
     l_shape.location = (3,3);
     square.location = (5,3);
     //square.set(&mut board);
-
-    l_shape.set(&mut board);
-    board.draw(&mut g);
-
+    */
 
     //main game loop
     loop {
-
-        let game_action= |key| -> bool {do_game_action(&mut l_shape, &mut board, key, &mut g)};
-        if tick(st, 1_000, game_action) { break }
+        tetrominos[0].location = (3,0);
+        tetrominos[0].set(&mut board);
+        board.draw(&mut g).unwrap().unwrap();
+        let game_action= |key| -> bool {do_game_action(&mut tetrominos[0], &mut board, key, &mut g)}; //TODO get random tetromino
+        if tick(st, 7_000, game_action) { break }
 
     }
     Ok(uefi::Status::SUCCESS.into())
