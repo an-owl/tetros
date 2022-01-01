@@ -2,6 +2,7 @@
 name = "tetros"
 version = "0.1.0"
 edition = "2021"
+license = "GPL-3.0-or-later"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -9,7 +10,7 @@ edition = "2021"
 
 rlibc = "1.0.0"
 uefi = {version = "0.13.0", features = ["exts","alloc","logger"]}
-uefi-services = { path = "../uefi-rs/uefi-services" } # temporary because lib is currently broken
+uefi-services = { path = "../uefi-rs/uefi-services"  } # temporary because lib is currently broken
 log = { version = "0.4.14", default-features = false }
 uefi-things = {path="../uefi-wrappers"}
 rand = { version = "0.8.4", features = ["small_rng"], default-features = false}
