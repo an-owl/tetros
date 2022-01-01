@@ -76,6 +76,7 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
         if tick(st, 7_000, game_action) { break }
 
     }
+    uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
     Ok(uefi::Status::SUCCESS.into())
 }
 
