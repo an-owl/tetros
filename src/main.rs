@@ -31,7 +31,7 @@ fn main(_image: Handle, mut st: SystemTable<Boot>) -> Status {
     }
 
 
-    run(&st).unwrap().unwrap(); //TODO handle this at some point
+    run(&mut st).unwrap().unwrap(); //TODO handle this at some point
 
 
 

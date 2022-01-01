@@ -215,6 +215,15 @@ impl Board{
         }
         return cleared
     }
+
+    pub fn is_lost(&self) -> bool{
+        for block in 0..self.width{
+            if !self.is_free((block,0)){
+                return true
+            }
+        }
+        false
+    }
 }
 
 impl core::ops::Deref for Board {

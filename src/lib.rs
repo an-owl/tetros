@@ -14,9 +14,10 @@ use uefi_things::glib::GraphicsHandle;
 pub mod graphical;
 
 
-pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<()>{
+pub fn run(st: &mut uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<()>{
     // Get required protocols
     use rand::RngCore;
+    use core::fmt::Write;
     use uefi_things::proto::get_proto;
     use uefi::proto::console::text::Output;
     use uefi::proto::console::gop::GraphicsOutput;
@@ -112,8 +113,12 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
         }
         board.clean_screen();
         board.draw(&mut g).unwrap().unwrap();
+        if board.is_lost(){
+            break
+        }
     }
-    //uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
+    uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
+    writeln!(st.stdout(),"You loose score {}",0).unwrap();
     Ok(uefi::Status::SUCCESS.into())
 }
 
