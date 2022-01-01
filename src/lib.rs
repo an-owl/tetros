@@ -87,7 +87,6 @@ pub fn tick<T>(st: &SystemTable<Boot>,time: u64 , mut action: T) -> bool
     where T: FnMut(uefi::proto::console::text::Key) -> bool
 {
     use uefi::table::boot;
-    use uefi::ResultExt;
     const MILLI: u64 = 10_000;
     let kb = uefi_things::proto::get_proto::<uefi::proto::console::text::Input>(st.boot_services()).unwrap().unwrap();
 
