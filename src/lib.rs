@@ -129,38 +129,42 @@ fn do_game_action(tet: &mut Tetromino,board: &mut Board ,key: uefi::proto::conso
                 'e' => {
                     trace!("got e");
                     tet.safe_ror(board);
-                    board.draw(g);
+                    board.draw(g).unwrap().unwrap();
                 }
                 'q' => {
                     trace!("got q");
                     tet.safe_rol(board);
-                    board.draw(g);
+                    board.draw(g).unwrap().unwrap();
                 }
 
                 // left right movement
                 'a' => {
                     trace!("Go right");
                     tet.legal_move((-1,0),board);
-                    board.draw(g);
+                    board.draw(g).unwrap().unwrap();
                 }
                 'd' => {
                     trace!("Go left");
                     tet.legal_move((1,0), board);
-                    board.draw(g);
+                    board.draw(g).unwrap().unwrap();
                 }
 
                 //fast drop
                 's' => {
                     trace!("dropping");
                     tet.legal_move((0,1),board);
-                    board.draw(g);
+                    board.draw(g).unwrap().unwrap();
                 }
                 'w' => {}
 
                 e => {trace!("got something {}",e);} //do nothing
             }
         }
-        uefi::proto::console::text::Key::Special(uefi::proto::console::text::ScanCode::ESCAPE) => {return true} //pause
+        uefi::proto::console::text::Key::Special(uefi::proto::console::text::ScanCode::ESCAPE) => {
+            board.clean_screen();
+            board.draw(g).unwrap().unwrap();
+            return true
+        } //pause
         _ => {}
     }
     return false
