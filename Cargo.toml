@@ -12,3 +12,4 @@ uefi = {version = "0.13.0", features = ["exts","alloc","logger"]}
 uefi-services = { path = "../uefi-rs/uefi-services" } # temporary because lib is currently broken
 log = { version = "0.4.14", default-features = false }
 uefi-things = {path="../uefi-wrappers"}
+rand = { version = "0.8.4", features = ["small_rng"], default-features = false}
