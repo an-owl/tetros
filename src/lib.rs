@@ -107,34 +107,34 @@ fn do_game_action(tet: &mut Tetromino,board: &mut Board ,key: uefi::proto::conso
 
                 'e' => {
                     trace!("got e");
-                    debug!("{}",tet.safe_ror(board));
+                    tet.safe_ror(board);
                     board.draw(g);
                 }
                 'q' => {
                     trace!("got q");
-                    debug!("{}",tet.safe_rol(board));
+                    tet.safe_rol(board);
                     board.draw(g);
                 }
 
                 // left right movement
                 'a' => {
-                    trace!("got a");
-                    debug!("{}",tet.legal_move((-1,0),board));
+                    trace!("Go right");
+                    tet.legal_move((-1,0),board);
                     board.draw(g);
                 }
                 'd' => {
-                    trace!("got d");
-                    debug!("{}",tet.legal_move((1,0), board));
+                    trace!("Go left");
+                    tet.legal_move((1,0), board);
                     board.draw(g);
                 }
 
                 //fast drop
                 's' => {
-                    trace!("got s");
+                    trace!("dropping");
+                    tet.legal_move((0,1),board);
+                    board.draw(g);
                 }
-                'w' => {
-                    trace!("got w");
-                }
+                'w' => {}
 
                 e => {trace!("got something {}",e);} //do nothing
             }
