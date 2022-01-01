@@ -94,11 +94,12 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
             rand[0] as usize % tetrominos.len()
         };
 
+        tetrominos[tet].location = (3, 0);
+        tetrominos[tet].set(&mut board);
+
+
         'fall: loop {
 
-
-            tetrominos[tet].location = (3, 0);
-            tetrominos[tet].set(&mut board);
             board.draw(&mut g).unwrap().unwrap();
             let game_action = |key| -> bool { do_game_action(&mut tetrominos[tet], &mut board, key, &mut g) }; //TODO get random tetromino
             if tick(st, 1_000, game_action) { break 'main }
@@ -109,9 +110,10 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
                 break 'fall
             }
         }
-
+        board.clean_screen();
+        board.draw(&mut g).unwrap().unwrap();
     }
-    uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
+    //uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
     Ok(uefi::Status::SUCCESS.into())
 }
 
@@ -196,8 +198,6 @@ fn do_game_action(tet: &mut Tetromino,board: &mut Board ,key: uefi::proto::conso
             }
         }
         uefi::proto::console::text::Key::Special(uefi::proto::console::text::ScanCode::ESCAPE) => {
-            board.clean_screen();
-            board.draw(g).unwrap().unwrap();
             return true
         } //pause
         _ => {}
