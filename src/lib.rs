@@ -16,6 +16,7 @@ pub mod graphical;
 
 pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<()>{
     // Get required protocols
+    use rand::RngCore;
     use uefi_things::proto::get_proto;
     use uefi::proto::console::text::Output;
     use uefi::proto::console::gop::GraphicsOutput;
@@ -69,13 +70,45 @@ pub fn run(st: &uefi::table::SystemTable<uefi::prelude::Boot>) -> uefi::Result<(
     //square.set(&mut board);
     */
 
+    let mut rng = {
+        use rand::SeedableRng;
+        use core::arch::asm;
+
+        let seed: u64;
+
+        unsafe {
+
+            asm!("rdrand {}", out(reg) seed);
+        }
+        info!("Seed {}", seed);
+
+        rand::rngs::SmallRng::seed_from_u64(seed)
+
+    };
+
     //main game loop
-    loop {
-        tetrominos[0].location = (3,0);
-        tetrominos[0].set(&mut board);
-        board.draw(&mut g).unwrap().unwrap();
-        let game_action= |key| -> bool {do_game_action(&mut tetrominos[0], &mut board, key, &mut g)}; //TODO get random tetromino
-        if tick(st, 7_000, game_action) { break }
+    'main: loop {
+        let tet: usize = {
+            let mut rand: [u8; 1] = [0];
+            rng.fill_bytes(&mut rand);
+            rand[0] as usize % tetrominos.len()
+        };
+
+        'fall: loop {
+
+
+            tetrominos[tet].location = (3, 0);
+            tetrominos[tet].set(&mut board);
+            board.draw(&mut g).unwrap().unwrap();
+            let game_action = |key| -> bool { do_game_action(&mut tetrominos[tet], &mut board, key, &mut g) }; //TODO get random tetromino
+            if tick(st, 1_000, game_action) { break 'main }
+
+            //drop one block, on fail break
+            if let false = tetrominos[tet].legal_move((0,1),&mut board){
+                //TODO if at top break 'main
+                break 'fall
+            }
+        }
 
     }
     uefi_things::proto::get_proto::<Output>(st.boot_services()).unwrap().unwrap().clear().unwrap().unwrap();
