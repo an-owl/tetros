@@ -208,7 +208,6 @@ impl Board{
                 None => break,
                 Some( row ) => {
                     cleared += 1;
-                    debug!("Clearing row {}",row);
                     self.clear_row(row);
                     self.scroll_from(row);
                 }
